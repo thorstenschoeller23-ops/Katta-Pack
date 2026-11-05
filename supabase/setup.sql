@@ -61,6 +61,11 @@ drop policy if exists schluessel_lesen on public.schluessel;
 create policy schluessel_lesen on public.schluessel for select to authenticated using (public.ist_mitglied());
 
 revoke all on public.mitglieder, public.profile, public.docs, public.schluessel from anon;
+grant usage on schema public to authenticated;
+grant select on public.mitglieder, public.schluessel to authenticated;
+grant select, insert, update on public.profile to authenticated;
+grant select, insert, update, delete on public.docs to authenticated;
+grant execute on function public.ist_mitglied() to authenticated;
 
 -- 4) Live-Aktualisierung (Häkchen und Notizen erscheinen sofort beim anderen)
 do $$

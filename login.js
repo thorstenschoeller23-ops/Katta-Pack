@@ -33,7 +33,8 @@ async function enter(session){
   show('loading');
   try {
     const {data: row, error} = await sb.from('schluessel').select('wert').eq('id', 1).maybeSingle();
-    if (error || !row) throw new Error('kein-zugang');
+    if (error) throw new Error('db:' + (error.code || '') + ' ' + (error.message || ''));
+    if (!row) throw new Error('kein-zugang');
     const DATA = await decrypt(row.wert);
     window.claude = makeClaude(sb, session);
     $('#loading').hidden = true; $('#appRoot').hidden = false;
@@ -43,7 +44,7 @@ async function enter(session){
     started = false; show('login');
     setMsg(err && err.message === 'kein-zugang'
       ? 'Angemeldet, aber dein Konto ist nicht als Mitglied eingetragen oder der Schlüssel fehlt. Siehe ANLEITUNG, Schritt 2.'
-      : 'Inhalt konnte nicht geladen werden. Bitte Seite neu laden.');
+      : (err && /^db:/.test(err.message) ? 'Datenbank-Fehler: ' + err.message.slice(3) + ' (Rechte in Supabase prüfen, siehe ANLEITUNG Schritt 2)' : 'Inhalt konnte nicht geladen werden: ' + ((err && err.message) || 'unbekannter Fehler')));
     $('#lOut').hidden = false;
   }
 }
